@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">passvalue_screentransition_App</string>
+    <string name="moveToresultViewButtonTitle">結果表示</string>
+    <string name="addition">➕</string>
+    <string name="division">➗</string>
+    <string name="subtraction">➖</string>
+    <string name="multiplication">✖️</string>
+    <string name="valuePlaceHolder">計算する数字を入れてください</string>
 </resources>
