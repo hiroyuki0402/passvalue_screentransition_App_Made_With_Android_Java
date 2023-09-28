@@ -69,6 +69,7 @@
             android:layout_height="wrap_content"
             android:checked="false"
             android:text="ToggleButton"
+            android:background="@color/bg"
             android:textOff="@string/addition"
             android:textOn="@string/addition" />
 
@@ -78,6 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="ToggleButton"
+            android:background="@color/bg"
             android:textOff="@string/subtraction"
             android:textOn="@string/subtraction"
             android:textStyle="bold" />
@@ -88,6 +90,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="ToggleButton"
+            android:background="@color/bg"
             android:textOff="@string/multiplication"
             android:textOn="@string/multiplication" />
 
@@ -97,6 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="ToggleButton"
+            android:background="@color/bg"
             android:textOff="@string/division"
             android:textOn="@string/division" />
     </LinearLayout>

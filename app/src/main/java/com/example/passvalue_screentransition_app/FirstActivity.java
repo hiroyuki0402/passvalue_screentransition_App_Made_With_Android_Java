@@ -1,10 +1,16 @@
 package com.example.passvalue_screentransition_app;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.CalendarContract;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -27,9 +33,16 @@ public class FirstActivity extends AppCompatActivity {
     /// 計算結果
     private Integer result; // 計算結果
 
+    /// アクションバー
+    ActionBar actionBar;
+
+    /// 四則演算
+    Operator operator = Operator.Addition;
+
     /// アクティビティの作成時に呼び出されるメソッド
     /// - Parameter savedInstanceState: 以前の状態を保持するためのデータ
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         /// レイアウトをセットアップ
@@ -40,6 +53,9 @@ public class FirstActivity extends AppCompatActivity {
 
         /// ボタンを構成
         configureButtons();
+
+        /// アクションバー
+        configureActionBar();
     }
 
     /// 数値入力フィールドを構成するメソッド
@@ -56,11 +72,7 @@ public class FirstActivity extends AppCompatActivity {
         multiplicationButton = findViewById(R.id.toggleButton4);
         divisionButton = findViewById(R.id.toggleButton5);
 
-        /// ボタンの背景色を初期化
-        additionButton.setBackgroundColor(Color.WHITE);
-        subtractionButton.setBackgroundColor(Color.WHITE);
-        multiplicationButton.setBackgroundColor(Color.WHITE);
-        divisionButton.setBackgroundColor(Color.WHITE);
+        int color = ContextCompat.getColor(this, R.color.bg);
 
         /// 加算ボタンのチェック状態が変更されたときに呼び出されるリスナーを設定
         additionButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -69,13 +81,14 @@ public class FirstActivity extends AppCompatActivity {
             /// - Parameters:
             ///   - buttonView: ボタンビュー
             ///   - isChecked: チェック状態
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    performOperation("+");
+                    operator = Operator.Addition;
                     additionButton.setBackgroundColor(Color.CYAN);
                     clearOtherButtons(additionButton);
                 } else {
-                    additionButton.setBackgroundColor(Color.WHITE);
+                    additionButton.setBackgroundColor(color);
                 }
             }
         });
@@ -86,13 +99,14 @@ public class FirstActivity extends AppCompatActivity {
             /// - Parameters:
             ///   - buttonView: ボタンビュー
             ///   - isChecked: チェック状態
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    performOperation("-");
+                    operator = Operator.Multiplication;
                     subtractionButton.setBackgroundColor(Color.CYAN);
                     clearOtherButtons(subtractionButton);
                 } else {
-                    subtractionButton.setBackgroundColor(Color.WHITE);
+                    subtractionButton.setBackgroundColor(color);
                 }
             }
         });
@@ -103,13 +117,14 @@ public class FirstActivity extends AppCompatActivity {
             /// - Parameters:
             ///   - buttonView: ボタンビュー
             ///   - isChecked: チェック状態
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    performOperation("*");
+                    operator = Operator.Multiplication;
                     multiplicationButton.setBackgroundColor(Color.CYAN);
                     clearOtherButtons(multiplicationButton);
                 } else {
-                    multiplicationButton.setBackgroundColor(Color.WHITE);
+                    multiplicationButton.setBackgroundColor(color);
                 }
             }
         });
@@ -120,13 +135,14 @@ public class FirstActivity extends AppCompatActivity {
             /// - Parameters:
             ///   - buttonView: ボタンビュー
             ///   - isChecked: チェック状態
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    performOperation("/");
+                    operator = Operator.Division;
                     divisionButton.setBackgroundColor(Color.CYAN);
                     clearOtherButtons(divisionButton);
                 } else {
-                    divisionButton.setBackgroundColor(Color.WHITE);
+                    divisionButton.setBackgroundColor(color);
                 }
             }
         });
@@ -139,55 +155,85 @@ public class FirstActivity extends AppCompatActivity {
         if (selectedButton != additionButton) {
             /// 加算ボタンのチェックを解除し、背景色を白に設定
             additionButton.setChecked(false);
-            additionButton.setBackgroundColor(Color.WHITE);
         }
 
         /// 選択されたボタンが減算ボタンでない場合
         if (selectedButton != subtractionButton) {
             /// 減算ボタンのチェックを解除し、背景色を白に設定
             subtractionButton.setChecked(false);
-            subtractionButton.setBackgroundColor(Color.WHITE);
         }
 
         /// 選択されたボタンが乗算ボタンでない場合
         if (selectedButton != multiplicationButton) {
             /// 乗算ボタンのチェックを解除し、背景色を白に設定
             multiplicationButton.setChecked(false);
-            multiplicationButton.setBackgroundColor(Color.WHITE);
         }
 
         /// 選択されたボタンが除算ボタンでない場合
         if (selectedButton != divisionButton) {
             /// 除算ボタンのチェックを解除し、背景色を白に設定
             divisionButton.setChecked(false);
-            divisionButton.setBackgroundColor(Color.WHITE);
         }
     }
 
-    /// 計算結果を表示するメソッド
+    /// 計算結果を表示するメソッド(画面遷移)
     /// - Parameter view: ビュー
     public void didTapResult(View view) {
-        Log.d("白石", "Result: " + result);
+        /// null check
+        if (result == null) { return; }
+
+        /// 計算
+        performOperation(this.operator);
+
+        /// 画面遷移用のインテントを作成
+        Intent intent = new Intent(this, SecondActivity.class);
+
+        /// 計算結果をインテントに追加
+        intent.putExtra("result", result.toString());
+
+        /// 画面遷移を実行
+        startActivity(intent);
     }
+
 
     /// 指定された演算を実行するメソッド
     /// - Parameter operator: 演算子
-    private void performOperation(String operator) {
+    private void performOperation( Operator operator) {
         int num1 = Integer.parseInt(numberTextFiled.getText().toString());
         int num2 = Integer.parseInt(numberTextFiled2.getText().toString());
         switch (operator) {
-            case "+":
+            case Addition:
                 this.result = num1 + num2;
                 break;
-            case "-":
+
+            case Subtraction:
                 this.result = num1 - num2;
                 break;
-            case "*":
+
+            case Multiplication:
                 this.result = num1 * num2;
                 break;
-            case "/":
+
+            case Division:
                 this.result = num1 / num2;
                 break;
         }
     }
+
+    /// アクションバーの構築
+    private void configureActionBar() {
+        actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+    }
+
+    /// 四則演算
+    enum Operator {
+        Addition,
+        Subtraction,
+        Multiplication,
+        Division
+    }
 }
+
